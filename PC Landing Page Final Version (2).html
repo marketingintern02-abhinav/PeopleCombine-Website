@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>People Combine</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--p:#900652;--pd:#6e0440;--pl:#b8147a;--s:#2596be;--bg:#faf9f7;--dk:#111;--dk2:#1E1E1E;--tx:#1a1a1a;--ts:#666;--tl:#999;--wh:#fff;--bd:#e4e0dc}
+html{font-size:16px;scroll-behavior:auto}
+body{font-family:Helvetica,Arial,sans-serif;background:#f0f0f0;background-image:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(255,255,255,.9) 0%,transparent 60%),radial-gradient(ellipse 70% 50% at 75% 30%,rgba(200,200,200,.5) 0%,transparent 55%),radial-gradient(ellipse 90% 70% at 50% 55%,rgba(255,255,255,.85) 0%,transparent 50%),radial-gradient(ellipse 60% 80% at 85% 75%,rgba(190,190,190,.45) 0%,transparent 50%),radial-gradient(ellipse 75% 55% at 10% 80%,rgba(255,255,255,.7) 0%,transparent 55%),linear-gradient(160deg,#d8d8d8 0%,#e8e8e8 25%,#f5f5f5 50%,#eaeaea 75%,#fafafa 100%);background-attachment:fixed;color:var(--tx);overflow-x:hidden;line-height:1.6}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 48px;height:56px;display:flex;align-items:center;justify-content:space-between;background:rgba(17,17,17,0);transition:background .4s,backdrop-filter .4s}
+.nav.solid{background:rgba(240,240,240,.88);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,0,0,.05)}
+.nav.solid .nav-logo,.nav.solid .nav-right a{color:var(--tx)}
+.nav-logo{font-size:.95rem;font-weight:700;letter-spacing:1px;color:var(--wh);transition:color .3s}
+.nav-right{display:flex;gap:28px;align-items:center}
+.nav-right a{text-decoration:none;color:rgba(255,255,255,.75);font-size:.8rem;font-weight:500;position:relative;transition:color .3s}
+.nav-right a::after{content:'';position:absolute;left:0;top:50%;width:0;height:1px;background:currentColor;transition:width .35s cubic-bezier(.65,0,.35,1)}
+.nav-right a:hover{color:var(--wh)}.nav.solid .nav-right a:hover{color:var(--tx)}
+.nav-right a:hover::after{width:100%}
+.ham{display:none;width:36px;height:36px;align-items:center;justify-content:center;cursor:pointer;z-index:1050;position:relative;-webkit-tap-highlight-color:transparent;touch-action:manipulation;background:none;border:none;padding:4px}
+.ham-lines{width:24px;height:16px;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none}
+.ham-lines span{display:block;width:100%;height:2px;background:var(--wh);border-radius:2px;transition:all .35s cubic-bezier(.65,0,.35,1)}
+.nav.solid .ham-lines span{background:var(--tx)}.ham.open .ham-lines span{background:var(--tx)!important}
+.ham.open .ham-lines span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+.ham.open .ham-lines span:nth-child(2){opacity:0}
+.ham.open .ham-lines span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
+.mob-menu{position:fixed;inset:0;background:rgba(250,249,247,.98);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);z-index:1040;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .35s ease,visibility .35s ease,transform .4s cubic-bezier(.22,1,.36,1);transform:translateY(10px)}
+.mob-menu.open{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0)}
+.mob-menu-inner{display:flex;flex-direction:column;align-items:center;gap:8px;padding:24px 40px;width:100%;max-width:320px}
+.mob-menu-inner a{text-decoration:none;color:var(--tx);font-size:1.25rem;font-weight:600;transition:color .3s,transform .3s;padding:14px 0;width:100%;text-align:center;border-bottom:1px solid rgba(0,0,0,.05);display:block}
+.mob-menu-inner a:last-child{border-bottom:none}
+.mob-menu-inner a:hover,.mob-menu-inner a:active{color:var(--p);transform:translateX(4px)}
+.mob-menu-brand{font-size:.7rem;font-weight:700;letter-spacing:2px;color:var(--tl);text-transform:uppercase;margin-bottom:32px}
+.mob-menu-close-hint{margin-top:36px;font-size:.65rem;color:var(--tl);letter-spacing:1px}
+
+/* HERO */
+.hero-pin{position:relative;height:300vh;background:#08080f}
+.hero-sticky{position:sticky;top:0;height:100vh;overflow:hidden}
+.hero-canvas{position:absolute;inset:0;pointer-events:none;z-index:1}
+.hero-content{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;padding:0 60px}
+.hero-layout{display:flex;align-items:center;gap:60px;width:100%;max-width:1200px;margin:0 auto}
+.hero-cards-side{flex:0 0 380px;position:relative;height:420px}
+.hero-text-side{flex:1;text-align:left}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border-radius:8px;font-size:.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.8);margin-bottom:24px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(12px);cursor:default;transition:all .4s}
+.hero-badge:hover{background:rgba(144,6,82,.12);border-color:rgba(144,6,82,.3);box-shadow:0 0 24px rgba(144,6,82,.15);transform:translateY(-2px) scale(1.03)}
+.hero-badge .bdot{width:5px;height:5px;background:var(--pl);border-radius:50%;box-shadow:0 0 6px rgba(184,20,122,.6);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 6px rgba(184,20,122,.6)}50%{opacity:.6;box-shadow:0 0 12px rgba(184,20,122,.9)}}
+.hero-sticky h1{font-family:'EB Garamond',Georgia,serif;font-size:clamp(3.2rem,7vw,6.5rem);font-weight:500;line-height:.95;letter-spacing:-2px;color:var(--wh);font-style:italic}
+.hero-sticky h1 em{font-style:normal;font-family:Helvetica,Arial,sans-serif;font-weight:700;background:linear-gradient(135deg,var(--p),var(--pl));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{margin-top:18px;font-size:.95rem;color:rgba(255,255,255,.5);max-width:400px;line-height:1.7}
+
+/* SCROLL CARDS */
+.scroll-card{position:absolute;background:#fff;border-radius:16px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(0,0,0,.25);will-change:transform,opacity;backface-visibility:hidden;padding:8px;overflow:hidden}
+.scroll-card .people-media{width:100%;height:100%;border-radius:10px;overflow:hidden;position:relative}
+.scroll-card .people-media img{width:100%;height:100%;object-fit:cover;display:block}
+.scroll-card .people-media .card-overlay{position:absolute;bottom:0;left:0;right:0;padding:8px 10px;background:linear-gradient(to top,rgba(0,0,0,.45),transparent);opacity:0;transition:opacity .3s}
+.scroll-card:hover .people-media .card-overlay{opacity:1}
+.scroll-card .people-media .card-overlay span{font-size:.55rem;font-weight:700;color:rgba(255,255,255,.9);letter-spacing:1.5px;text-transform:uppercase}
+
+/* Grid title */
+.grid-center-title{position:absolute;z-index:5;text-align:center;pointer-events:none;opacity:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.grid-center-title h2{font-family:'EB Garamond',Georgia,serif;font-size:clamp(1.4rem,2.5vw,2rem);font-weight:500;color:var(--wh);font-style:italic;letter-spacing:-.5px;line-height:1.1}
+.grid-center-title .grid-title-line{width:32px;height:2px;background:var(--pl);margin:8px auto 0;border-radius:2px}
+
+/* DIVIDERS & MARQUEE */
+.section-divider{width:100%;height:1px;position:relative;overflow:hidden}
+.section-divider::after{content:'';position:absolute;top:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.08) 20%,rgba(255,255,255,.12) 50%,rgba(255,255,255,.08) 80%,transparent 100%)}
+.section-divider.light::after{background:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.06) 20%,rgba(0,0,0,.1) 50%,rgba(0,0,0,.06) 80%,transparent 100%)}
+.marquee-wrap{overflow:hidden;background:var(--dk)}
+.marquee-inner{position:relative;padding:16px 0;overflow:hidden}
+.marquee-inner::before,.marquee-inner::after{content:'';position:absolute;top:0;bottom:0;width:80px;z-index:2;pointer-events:none}
+.marquee-inner::before{left:0;background:linear-gradient(90deg,var(--dk),transparent)}
+.marquee-inner::after{right:0;background:linear-gradient(-90deg,var(--dk),transparent)}
+.marquee-track{display:flex;gap:0;white-space:nowrap;animation:mq 20s linear infinite;width:max-content}
+.marquee-item{display:flex;align-items:center;padding:0 32px;font-size:.68rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.4)}
+.marquee-sep{width:3px;height:3px;border-radius:50%;background:var(--p);margin:0 8px;flex-shrink:0;box-shadow:0 0 6px rgba(144,6,82,.4)}
+@keyframes mq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* SECTIONS */
+section{padding:100px 48px}
+.sec-head{text-align:center;margin-bottom:48px}
+.sec-label{font-family:'EB Garamond',Georgia,serif;font-size:clamp(2.2rem,4.5vw,3.4rem);font-weight:500;letter-spacing:-.5px;line-height:1.1;margin-bottom:6px;font-style:italic}
+.sec-desc{font-size:.88rem;color:var(--ts);line-height:1.6}
+
+/* IMPACT */
+.impact{background:transparent;padding:100px 48px;position:relative}
+.impact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.impact-card{background:#fff;border:1px solid rgba(255,255,255,.5);border-radius:16px;padding:36px 28px;text-align:center;cursor:default;transition:all .5s cubic-bezier(.22,1,.36,1);position:relative;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.07),0 1px 4px rgba(0,0,0,.04)}
+.impact-card::before{content:'';position:absolute;inset:0;background:var(--dk);opacity:0;transition:opacity .5s;border-radius:16px}
+.impact-card:hover::before{opacity:1}
+.impact-card:hover .ic-num{color:var(--wh)}.impact-card:hover .ic-num span{color:var(--pl)}
+.impact-card:hover .ic-label{color:rgba(255,255,255,.45)}
+.impact-card>*{position:relative;z-index:1}
+.ic-num{font-size:2.8rem;font-weight:700;letter-spacing:-1px;line-height:1;transition:color .5s}
+.ic-num span{color:var(--pl);transition:color .5s}
+.ic-label{font-size:.68rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--tl);margin-top:10px;transition:color .5s}
+
+/* STORY */
+.story-pin{position:relative;height:400vh}
+.story-sticky{position:sticky;top:0;height:100vh;display:flex;align-items:center;padding:0 48px;overflow:hidden}
+.story-inner{display:grid;grid-template-columns:1fr 1fr;gap:56px;width:100%;align-items:center}
+.story-left{position:relative;height:280px;overflow:hidden}
+.story-right{position:relative;height:380px;overflow:hidden;border-radius:20px}
+.story-left-header{text-align:center;margin-bottom:24px}
+.story-left-header .sl-tag{font-size:.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--p);margin-bottom:6px}
+.story-left-header .sl-bar{width:36px;height:3px;background:var(--p);border-radius:2px;margin:0 auto 14px}
+.story-left-header .sl-label{font-family:'EB Garamond',Georgia,serif;font-size:clamp(1.8rem,3vw,2.5rem);font-weight:500;letter-spacing:-.3px;line-height:1.15;font-style:italic}
+.story-slide{position:absolute;top:0;left:0;width:100%;opacity:0;transform:translateY(40px);transition:all .6s cubic-bezier(.22,1,.36,1)}
+.story-slide.active{opacity:1;transform:translateY(0)}.story-slide.exit{opacity:0;transform:translateY(-40px)}
+.story-slide p{font-size:.95rem;color:var(--ts);line-height:1.8;max-width:420px;margin:0 auto}
+.story-card{position:absolute;inset:0;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;text-align:center;padding:32px;opacity:0;transform:translateY(40px);transition:all .6s cubic-bezier(.22,1,.36,1);overflow:hidden}
+.story-card.active{opacity:1;transform:translateY(0)}.story-card.exit{opacity:0;transform:translateY(-40px)}
+.story-card-bg{position:absolute;inset:0;background:linear-gradient(160deg,var(--p) 0%,var(--pd) 60%,#2a0a1e 100%);z-index:0}
+.story-card-img{position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);width:200px;height:200px;z-index:1;opacity:.85}
+.story-card-img svg{width:100%;height:100%}
+.story-card-text{position:relative;z-index:2;background:rgba(0,0,0,.25);backdrop-filter:blur(8px);border-radius:12px;padding:16px 24px;border:1px solid rgba(255,255,255,.08)}
+.story-card .sc-big{font-size:1.6rem;font-weight:700;color:var(--wh);letter-spacing:-.5px;line-height:1.2}
+.story-card .sc-sub{font-size:.72rem;color:rgba(255,255,255,.5);margin-top:4px;font-weight:500}
+.story-dots{position:absolute;right:48px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:10}
+.story-dot{width:8px;height:8px;border-radius:50%;background:var(--bd);transition:all .3s;cursor:pointer}
+.story-dot.active{background:var(--p);transform:scale(1.3)}
+
+/* BRANDS */
+.brands-section{padding:100px 48px;overflow:hidden}
+.brands-track-wrap{position:relative}
+.brands-track{display:flex;gap:20px;cursor:grab;will-change:transform}
+.brands-track:active{cursor:grabbing}
+.brand-card{flex:0 0 320px;border:1px solid rgba(255,255,255,.5);border-radius:18px;background:#fff;overflow:hidden;transition:all .4s;box-shadow:0 4px 24px rgba(0,0,0,.07),0 1px 4px rgba(0,0,0,.04)}
+.brand-card:hover{border-color:rgba(144,6,82,.2);transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,0,0,.1)}
+.brand-img{height:160px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.brand-img-icon{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem}
+.brand-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(255,255,255,.8) 100%)}
+.brand-body{padding:20px 22px 24px}
+.brand-body h3{font-size:1.05rem;font-weight:700;margin-bottom:6px}
+.brand-body p{font-size:.8rem;color:var(--ts);line-height:1.55;margin-bottom:14px}
+.brand-link{display:inline-flex;align-items:center;gap:6px;font-size:.74rem;font-weight:600;color:var(--p);text-decoration:none;transition:gap .3s}
+.brand-link:hover{gap:10px}
+
+/* TIMELINE */
+.timeline-section{background:var(--dk);color:var(--wh);position:relative;padding:100px 48px 420px}
+.tl-stack{position:relative;max-width:640px;margin:0 auto;padding-top:16px}
+.tl-progress-line{position:absolute;top:16px;bottom:0;left:50%;transform:translateX(-50%);width:2px;background:rgba(255,255,255,.06);pointer-events:none;z-index:0}
+.tl-progress-fill{position:absolute;top:0;left:0;width:100%;height:0%;background:var(--p);box-shadow:0 0 8px var(--p);transition:height .1s}
+.tl-sticky{position:sticky;margin-bottom:2.5rem;z-index:1}
+.tl-sticky:nth-child(2){top:80px;z-index:10}
+.tl-sticky:nth-child(3){top:100px;z-index:20}
+.tl-sticky:nth-child(4){top:120px;z-index:30}
+.tl-sticky:nth-child(5){top:140px;z-index:40}
+.tl-sticky:nth-child(6){top:160px;z-index:50}
+.tl-sticky:nth-child(7){top:180px;z-index:60}
+.tl-sticky:nth-child(8){top:200px;z-index:70;margin-bottom:0}
+.tl-card{background:var(--dk2);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:24px 28px;display:flex;gap:20px;align-items:center;transition:all .3s}
+.tl-card:hover{border-color:var(--p);box-shadow:0 0 20px rgba(144,6,82,.15)}
+.tl-year{font-family:'EB Garamond',Georgia,serif;font-size:2.6rem;font-weight:700;color:var(--pl);letter-spacing:-1px;line-height:1;flex-shrink:0;min-width:90px;text-align:center;font-style:italic}
+.tl-card h3{font-family:'EB Garamond',Georgia,serif;font-size:1.15rem;font-weight:600;margin-bottom:2px;font-style:italic;letter-spacing:-.2px}
+.tl-card p{font-size:.75rem;color:rgba(255,255,255,.4);line-height:1.5}
+
+/* ===== LEADERS ===== */
+.leaders-section{background:var(--dk);color:var(--wh);position:relative;padding:100px 48px}
+.leaders-section .sec-label{color:var(--wh)}
+.leaders-section .sec-desc{color:rgba(255,255,255,.4)}
+.leaders-bg-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0}
+.leaders-bg-text h2{font-size:clamp(2.5rem,8vw,7rem);font-weight:700;color:rgba(255,255,255,.03);text-align:center;line-height:.95;letter-spacing:-2px;user-select:none;text-transform:uppercase}
+
+/* Leader grid */
+.leaders-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:900px;margin:0 auto;position:relative;z-index:1}
+.leader-item{position:relative}
+.leader-card{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.08);aspect-ratio:3/4;transition:all .5s;background:var(--dk2);border-radius:4px;cursor:pointer}
+.leader-card:hover{border-color:rgba(144,6,82,.4);transform:translateY(-4px);z-index:2}
+/* Selected state */
+.leader-item.selected .leader-card{border-color:var(--p);box-shadow:0 0 20px rgba(144,6,82,.25)}
+.leader-item.selected .leader-card .leader-bar{width:36px}
+.leader-card-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.9) 0%,rgba(0,0,0,.15) 50%,transparent 100%);z-index:2;opacity:.75;transition:opacity .5s}
+.leader-card:hover .leader-card-overlay{opacity:.9}
+.leader-card-img{position:absolute;inset:0;overflow:hidden}
+.leader-card-img img{width:100%;height:100%;object-fit:cover;display:block;filter:grayscale(.6);transition:filter .7s}
+.leader-card:hover .leader-card-img img{filter:grayscale(0)}
+.leader-item.selected .leader-card-img img{filter:grayscale(0)}
+.leader-card-content{position:absolute;bottom:0;left:0;width:100%;padding:20px;z-index:10}
+.leader-bar{width:0;height:2px;background:var(--p);margin-bottom:10px;transition:width .5s .1s}
+.leader-card:hover .leader-bar{width:36px}
+.leader-card-content h3{font-size:1.15rem;font-weight:700;letter-spacing:-.3px;margin-bottom:2px}
+.leader-card-content .role{font-size:.6rem;font-weight:700;color:var(--pl);letter-spacing:2px;text-transform:uppercase}
+.leader-read-cta{display:inline-flex;align-items:center;gap:4px;margin-top:10px;font-size:.65rem;font-weight:600;color:rgba(255,255,255,.55);letter-spacing:1px;text-transform:uppercase;transition:color .3s}
+.leader-card:hover .leader-read-cta{color:var(--wh)}
+.leader-linkedin{position:absolute;bottom:20px;right:20px;z-index:20;width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);text-decoration:none;transition:all .3s}
+.leader-linkedin:hover{color:var(--pl);transform:scale(1.15)}
+.leader-linkedin svg{width:14px;height:14px;fill:currentColor}
+
+/* Desktop story panel — inserted into grid, spans full width */
+.leader-row-story{grid-column:1/-1;overflow:hidden;max-height:0;opacity:0;transition:max-height .5s cubic-bezier(.22,1,.36,1),opacity .4s .05s,padding .4s;padding:0}
+.leader-row-story.open{max-height:500px;opacity:1;padding:8px 0}
+.leader-row-story-inner{background:rgba(144,6,82,.07);border:1px solid rgba(144,6,82,.15);border-radius:12px;padding:28px 32px;display:flex;gap:24px;align-items:flex-start;animation:storySlideIn .4s cubic-bezier(.22,1,.36,1)}
+@keyframes storySlideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.leader-row-story-inner .lrs-pfp{width:64px;height:64px;border-radius:999px;object-fit:cover;flex-shrink:0;border:2px solid rgba(255,255,255,.1)}
+.leader-row-story-inner .lrs-body h4{font-family:'EB Garamond',Georgia,serif;font-size:1.4rem;font-weight:600;font-style:italic;margin-bottom:2px;letter-spacing:-.3px}
+.leader-row-story-inner .lrs-body .lrs-role{font-size:.6rem;font-weight:700;color:var(--pl);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;display:block}
+.leader-row-story-inner .lrs-body p{font-size:.85rem;color:rgba(255,255,255,.55);line-height:1.75}
+
+/* Mobile story panel (inside leader-item) */
+.leader-story{max-height:0;overflow:hidden;transition:max-height .45s cubic-bezier(.22,1,.36,1),opacity .35s,padding .35s;opacity:0;padding:0}
+.leader-item.open .leader-story{max-height:320px;opacity:1;padding:16px 0 4px}
+.leader-story-inner{background:rgba(144,6,82,.08);border:1px solid rgba(144,6,82,.15);border-radius:12px;padding:20px;display:flex;gap:14px;align-items:flex-start}
+.leader-story-inner .ls-pfp{width:48px;height:48px;border-radius:999px;object-fit:cover;flex-shrink:0;border:2px solid rgba(255,255,255,.1)}
+.leader-story-inner .ls-text h4{font-family:'EB Garamond',Georgia,serif;font-size:1.1rem;font-weight:600;font-style:italic;margin-bottom:2px}
+.leader-story-inner .ls-text .ls-role{font-size:.55rem;font-weight:700;color:var(--pl);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;display:block}
+.leader-story-inner .ls-text p{font-size:.8rem;color:rgba(255,255,255,.5);line-height:1.7}
+
+/* Desktop: hide mobile story; Mobile: hide desktop row-story */
+@media(min-width:768px){
+  .leader-story{display:none!important}
+  .leader-item.open .leader-story{display:none!important}
+}
+@media(max-width:767px){
+  .leader-row-story{display:none!important}
+  .leader-story{display:block}
+  .leaders-grid{grid-template-columns:1fr 1fr;gap:16px;max-width:100%}
+  .leader-card-content h3{font-size:1rem}
+  .leader-card-img img{filter:grayscale(.3)}
+}
+@media(max-width:480px){
+  .leaders-grid{grid-template-columns:1fr;gap:16px}
+  .leader-card{aspect-ratio:4/3}
+}
+
+/* CTA */
+.cta-section{padding:120px 48px;text-align:center;position:relative;overflow:hidden}
+.cta-section::before{content:'';position:absolute;top:50%;left:50%;width:500px;height:500px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(144,6,82,.04) 0%,transparent 70%);pointer-events:none}
+.cta-btn{display:inline-flex;align-items:center;gap:10px;background:var(--p);color:var(--wh);padding:14px 36px;border-radius:100px;font-size:.85rem;font-weight:700;text-decoration:none;transition:all .3s}
+.cta-btn:hover{background:var(--pd);transform:translateY(-2px);box-shadow:0 8px 32px rgba(144,6,82,.3)}
+
+/* FOOTER */
+footer{background:var(--dk);color:rgba(255,255,255,.55);padding:72px 48px 32px}
+.ft-top{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:56px;margin-bottom:56px}
+.ft-brand{font-size:.95rem;font-weight:700;color:var(--wh);letter-spacing:.5px;margin-bottom:12px}
+.ft-tagline{font-size:.82rem;line-height:1.65;max-width:280px}
+.ft-col h4{font-size:.64rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.22);margin-bottom:16px}
+.ft-col a{display:block;color:rgba(255,255,255,.5);text-decoration:none;font-size:.82rem;margin-bottom:10px;transition:color .2s}
+.ft-col a:hover{color:var(--wh)}
+.ft-bottom{border-top:1px solid rgba(255,255,255,.07);padding-top:20px;display:flex;justify-content:space-between;align-items:center;font-size:.7rem}
+.ft-legal a{color:rgba(255,255,255,.3);text-decoration:none;margin-left:18px;transition:color .2s}
+.ft-legal a:hover{color:rgba(255,255,255,.7)}
+
+/* REVEAL */
+.r{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)}
+.r.v{opacity:1;transform:translateY(0)}.rd1{transition-delay:.1s}.rd2{transition-delay:.2s}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:1024px){
+  .nav,section,.impact,.brands-section,.timeline-section,.leaders-section,.cta-section,footer{padding-left:28px;padding-right:28px}
+  .hero-content{padding:0 28px}.hero-layout{gap:40px}
+  .hero-cards-side{flex:0 0 300px;height:360px}
+  .story-sticky{padding:0 28px}.story-inner{grid-template-columns:1fr;gap:28px}
+  .story-left{height:180px}.story-right{height:280px}
+  .ft-top{grid-template-columns:1fr 1fr;gap:32px}
+  .story-dots{right:28px}.brand-card{flex:0 0 280px}
+  .impact-grid{grid-template-columns:repeat(2,1fr)}
+  .tl-card{flex-direction:column;text-align:center;align-items:center}
+  .tl-card>div:last-child{text-align:center}.tl-year{min-width:auto}
+  .leaders-grid{max-width:700px}
+  .canvas-wrap{width:300px;height:260px}
+}
+@media(max-width:768px){
+  .nav{padding:0 20px}.nav-right{display:none}.ham{display:flex}
+  section,.impact,.brands-section,.timeline-section,.leaders-section,.cta-section,footer{padding-left:20px;padding-right:20px}
+  .hero-content{padding:0 20px}
+  .hero-layout{flex-direction:column-reverse;gap:24px;text-align:center}
+  .hero-text-side{text-align:center}.hero-sub{margin:18px auto 0}
+  .hero-cards-side{flex:none;width:280px;height:300px;margin:0 auto}
+  .scroll-card{transition:transform .5s cubic-bezier(.22,1,.36,1),opacity .5s cubic-bezier(.22,1,.36,1)}
+  .story-sticky{padding:0 20px}
+  .hero-sticky h1{font-size:clamp(2.6rem,10vw,3.8rem)}
+  .hero-sub{font-size:.85rem;max-width:320px}
+  .impact-grid{grid-template-columns:1fr}
+  .ft-top{grid-template-columns:1fr;gap:24px}
+  .ft-bottom{flex-direction:column;gap:10px;text-align:center}
+  .story-dots{right:20px}.story-left{height:160px}.story-right{height:240px}
+  .story-card-img{width:140px;height:140px}
+  .brand-card{flex:0 0 260px}.brand-img{height:130px}
+  .tl-card{flex-direction:column;text-align:center;align-items:center;padding:20px 16px}
+  .tl-card>div:last-child{text-align:center}
+  .tl-year{font-size:2.2rem;min-width:auto}
+  .tl-stack{max-width:100%}.tl-card h3{font-size:.95rem}.tl-card p{font-size:.7rem}
+  .sec-label{font-size:clamp(1.8rem,6vw,2.6rem)}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="nav" id="nav">
+  <div class="nav-logo">PEOPLE COMBINE</div>
+  <div class="nav-right"><a href="#home">Home</a><a href="#leadership">Leadership</a><a href="#careers">Careers</a><a href="#contact">Contact Us</a></div>
+  <button class="ham" id="hamBtn" aria-label="Menu"><div class="ham-lines"><span></span><span></span><span></span></div></button>
+</div>
+<div class="mob-menu" id="mobMenu">
+  <div class="mob-menu-inner">
+    <div class="mob-menu-brand">PEOPLE COMBINE</div>
+    <a href="#home" class="mob-link">Home</a>
+    <a href="#leadership" class="mob-link">Leadership</a>
+    <a href="#careers" class="mob-link">Careers</a>
+    <a href="#contact" class="mob-link">Contact Us</a>
+    <div class="mob-menu-close-hint">Tap outside or ✕ to close</div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero-pin" id="heroPin">
+  <div class="hero-sticky" id="heroSticky">
+    <canvas class="hero-canvas" id="heroCanvas"></canvas>
+    <div class="hero-content">
+      <div class="hero-layout" id="heroLayout">
+        <div class="hero-cards-side" id="heroCardsSide"></div>
+        <div class="hero-text-side" id="heroTextSide">
+          <div class="hero-badge"><span class="bdot"></span> Since 1993</div>
+          <h1>Imagine<br><em>Together.</em></h1>
+          <p class="hero-sub">Building institutional legacies that empower communities through education, technology, and hospitality.</p>
+        </div>
+      </div>
+    </div>
+    <div class="grid-center-title" id="gridCenterTitle"><h2>Our<br>People</h2><div class="grid-title-line"></div></div>
+  </div>
+</div>
+
+<div class="section-divider" style="background:var(--dk)"></div>
+<div class="marquee-wrap"><div class="marquee-inner"><div class="marquee-track">
+  <div class="marquee-item"><span class="marquee-sep"></span>32+ YEARS IN THE INDUSTRY</div>
+  <div class="marquee-item"><span class="marquee-sep"></span>1M+ LIVES TOUCHED</div>
+  <div class="marquee-item"><span class="marquee-sep"></span>3X BEST WORKPLACE WINNER</div>
+  <div class="marquee-item"><span class="marquee-sep"></span>500+ INSTITUTIONS SERVED</div>
+  <div class="marquee-item"><span class="marquee-sep"></span>32+ YEARS IN THE INDUSTRY</div>
+  <div class="marquee-item"><span class="marquee-sep"></span>1M+ LIVES TOUCHED</div>
+  <div class="marquee-item"><span class="marquee-sep"></span>3X BEST WORKPLACE WINNER</div>
+  <div class="marquee-item"><span class="marquee-sep"></span>500+ INSTITUTIONS SERVED</div>
+</div></div></div>
+
+<section class="impact" id="impactSection">
+  <div class="sec-head"><div class="sec-label r">Our Impact</div><div class="sec-desc r rd1">Numbers that tell our story.</div></div>
+  <div class="impact-grid">
+    <div class="impact-card r"><div class="ic-num">32<span>+</span></div><div class="ic-label">Years in the Industry</div></div>
+    <div class="impact-card r rd1"><div class="ic-num">1M<span>+</span></div><div class="ic-label">Lives Touched</div></div>
+    <div class="impact-card r rd2"><div class="ic-num">3<span>x</span></div><div class="ic-label">Best Workplace Winner</div></div>
+  </div>
+</section>
+
+<div class="section-divider light"></div>
+
+<div class="story-pin" id="storyPin">
+  <div class="story-sticky">
+    <div class="story-inner">
+      <div>
+        <div class="story-left-header"><div class="sl-tag">Our Story</div><div class="sl-bar"></div><div class="sl-label">Born from a vision to transform education.</div></div>
+        <div class="story-left">
+          <div class="story-slide" id="ss0"><p>What started as the brainchild of two childhood friends has grown into India's most trusted education management company.</p></div>
+          <div class="story-slide" id="ss1"><p>For over three decades, we've reimagined how institutions deliver quality education—combining operational excellence with innovative solutions.</p></div>
+          <div class="story-slide" id="ss2"><p>From transport management to curriculum development, we provide end-to-end services that let educators focus on shaping young minds.</p></div>
+        </div>
+      </div>
+      <div class="story-right">
+        <div class="story-card" id="sc0"><div class="story-card-bg"></div><div class="story-card-img"><svg viewBox="0 0 240 300" fill="none"><path d="M95 60L100 40L140 40L145 60" stroke="rgba(255,255,255,.35)" stroke-width="2" fill="rgba(255,255,255,.08)"/><path d="M98 40L102 20L138 20L142 40" stroke="rgba(255,255,255,.3)" stroke-width="2" fill="rgba(255,255,255,.06)"/><path d="M110 22L120 15L130 22L127 32L113 32Z" fill="rgba(255,255,255,.2)"/><ellipse cx="120" cy="120" rx="18" ry="18" fill="rgba(255,255,255,.12)"/><path d="M102 120C90 110 88 90 95 62" stroke="rgba(255,255,255,.2)" stroke-width="8" stroke-linecap="round" fill="none"/><path d="M138 120C150 110 152 90 145 62" stroke="rgba(255,255,255,.2)" stroke-width="8" stroke-linecap="round" fill="none"/><path d="M108 138L100 220L140 220L132 138" fill="rgba(255,255,255,.1)"/></svg></div><div class="story-card-text"><div class="sc-big">Since 1993</div><div class="sc-sub">Where it all began</div></div></div>
+        <div class="story-card" id="sc1"><div class="story-card-bg" style="background:linear-gradient(160deg,var(--pd),#3a0a28,#1a0a18)"></div><div class="story-card-img"><svg viewBox="0 0 260 240" fill="none"><path d="M165 190L165 140C165 80 145 40 120 30C105 25 95 30 88 42C78 58 75 80 78 105C80 120 85 135 95 148C100 155 108 160 115 162C120 163 130 163 140 158C148 153 155 145 160 138C162 135 164 142 165 150Z" fill="rgba(255,255,255,.07)" stroke="rgba(255,255,255,.12)" stroke-width="1.5"/><path d="M110 200L110 155C110 100 92 65 72 55C58 48 48 55 42 68C34 85 32 105 35 128C37 142 42 155 50 166C55 172 62 176 70 178C76 179 84 178 92 173C100 168 106 160 110 152C112 148 111 158 110 168Z" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.15)" stroke-width="1.5"/></svg></div><div class="story-card-text"><div class="sc-big">Two Friends</div><div class="sc-sub">A shared passion for education</div></div></div>
+        <div class="story-card" id="sc2"><div class="story-card-bg" style="background:linear-gradient(160deg,#4a0a32,var(--pd),#1a0512)"></div><div class="story-card-img"><svg viewBox="0 0 260 260" fill="none"><path d="M130 55C120 50 108 52 105 62C102 72 108 78 115 80L145 80C152 78 158 72 155 62C152 52 140 50 130 55Z" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.15)" stroke-width="1.5"/><path d="M155 70C168 75 178 88 180 100" stroke="rgba(255,255,255,.12)" stroke-width="10" stroke-linecap="round"/></svg></div><div class="story-card-text"><div class="sc-big">One Vision</div><div class="sc-sub">Transforming schools across India</div></div></div>
+      </div>
+    </div>
+    <div class="story-dots"><div class="story-dot active"></div><div class="story-dot"></div><div class="story-dot"></div></div>
+  </div>
+</div>
+
+<div class="section-divider light"></div>
+
+<section class="brands-section" id="brands">
+  <div class="sec-head"><div class="sec-label r">Our Brands</div><div class="sec-desc r rd1">Five verticals. One mission — creating enduring value.</div></div>
+  <div class="brands-track-wrap"><div class="brands-track" id="brandsTrack"></div></div>
+</section>
+
+<div class="section-divider light" style="background:transparent"></div>
+
+<section class="timeline-section" id="legacy">
+  <div class="sec-head"><div class="sec-label r" style="color:#fff">Our Legacy</div><div class="sec-desc r rd1" style="color:rgba(255,255,255,.4)">A timeline of innovation and growth.</div></div>
+  <div class="tl-stack">
+    <div class="tl-progress-line"><div class="tl-progress-fill" id="tlFill"></div></div>
+    <div class="tl-sticky"><div class="tl-card"><div class="tl-year">1993</div><div><h3>Vikas Founded</h3><p>The inception of a vision to transform education through values and excellence.</p></div></div></div>
+    <div class="tl-sticky"><div class="tl-card"><div class="tl-year">2000</div><div><h3>The Meeting</h3><p>A strategic partnership that laid the foundation for exponential growth.</p></div></div></div>
+    <div class="tl-sticky"><div class="tl-card"><div class="tl-year">2001</div><div><h3>Oakridge Established</h3><p>Launching India's pioneering IB continuum school.</p></div></div></div>
+    <div class="tl-sticky"><div class="tl-card"><div class="tl-year">2009</div><div><h3>7 Midway Plaza</h3><p>Expansion into commercial infrastructure and community hubs.</p></div></div></div>
+    <div class="tl-sticky"><div class="tl-card"><div class="tl-year">2010</div><div><h3>OI Playschool</h3><p>Redefining early childhood education with care and creativity.</p></div></div></div>
+    <div class="tl-sticky"><div class="tl-card"><div class="tl-year">2013</div><div><h3>Westberry</h3><p>A new chapter in K-12 education focusing on holistic growth.</p></div></div></div>
+    <div class="tl-sticky"><div class="tl-card"><div class="tl-year">2021</div><div><h3>Coschool</h3><p>Empowering educators with technology for the future.</p></div></div></div>
+  </div>
+</section>
+
+<div class="section-divider" style="background:var(--dk)"></div>
+
+<!-- LEADERS -->
+<section class="leaders-section" id="leadership">
+  <div class="leaders-bg-text"><h2>Meet The<br>Leaders</h2></div>
+  <div class="sec-head" style="position:relative;z-index:1"><div class="sec-label r" style="color:#fff">Meet The Leaders</div><div class="sec-desc r rd1" style="color:rgba(255,255,255,.4)">The people behind our vision.</div></div>
+  <div class="leaders-grid" id="leadersGrid"></div>
+</section>
+
+<div class="section-divider" style="background:var(--dk)"></div>
+
+<section class="cta-section" id="careers">
+  <div class="sec-head"><div class="sec-label r">Build your legacy with us.</div><div class="sec-desc r rd1">Be part of a legacy that values growth, empathy, and the pursuit of excellence.</div></div>
+  <a href="#" class="cta-btn r rd2">View All Openings →</a>
+</section>
+
+<footer id="contact">
+  <div class="ft-top">
+    <div><div class="ft-brand">PEOPLE COMBINE</div><div class="ft-tagline">Nurturing potential through education, hospitality, and technological innovation since 1993.</div></div>
+    <div class="ft-col"><h4>Company</h4><a href="#">Our Portfolio</a><a href="#">Impact Report</a><a href="#">Leadership</a><a href="#">Newsroom</a></div>
+    <div class="ft-col"><h4>Verticals</h4><a href="#">K-12 Education</a><a href="#">Preschools</a><a href="#">Corporate Tech</a><a href="#">Hospitality</a></div>
+    <div class="ft-col"><h4>Connect</h4><a href="mailto:info@peoplecombine.com">info@peoplecombine.com</a><a href="#">Careers</a><a href="#">Contact Us</a></div>
+  </div>
+  <div class="ft-bottom"><div>&copy; 2026 People Combine. All rights reserved.</div><div class="ft-legal"><a href="#">Privacy Policy</a><a href="#">Terms of Use</a></div></div>
+</footer>
+
+<script>
+/* ===== NAV ===== */
+const nv=document.getElementById('nav');
+window.addEventListener('scroll',()=>nv.classList.toggle('solid',scrollY>80));
+
+/* ===== MOBILE MENU ===== */
+(function(){
+const ham=document.getElementById('hamBtn'),mobM=document.getElementById('mobMenu');
+let isOpen=false,lockUntil=0;
+function open(){if(isOpen)return;isOpen=true;ham.classList.add('open');mobM.classList.add('open');document.body.style.overflow='hidden'}
+function close(){if(!isOpen)return;isOpen=false;ham.classList.remove('open');mobM.classList.remove('open');document.body.style.overflow=''}
+function toggle(){const now=Date.now();if(now<lockUntil)return;lockUntil=now+300;isOpen?close():open()}
+ham.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();toggle()});
+document.querySelectorAll('.mob-link').forEach(a=>a.addEventListener('click',close));
+mobM.addEventListener('click',function(e){if(e.target===mobM)close()});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&isOpen)close()});
+window.addEventListener('popstate',function(){if(isOpen)close()});
+})();
+
+/* ===== REVEAL ===== */
+const ro=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('v')})},{threshold:.12,rootMargin:'0px 0px -30px 0px'});
+document.querySelectorAll('.r').forEach(e=>ro.observe(e));
+
+/* ===== HERO CANVAS ===== */
+(function(){
+const c=document.getElementById('heroCanvas'),x=c.getContext('2d');
+let w,h;const shapes=[];const cols=['144,6,82','37,150,190','184,20,122','30,120,160'];
+for(let i=0;i<40;i++){shapes.push({x:0,y:0,sz:12+Math.random()*70,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,rot:Math.random()*Math.PI*2,vr:(Math.random()-.5)*.006,op:.025+Math.random()*.055,col:cols[Math.floor(Math.random()*cols.length)],circle:Math.random()>.4})}
+function resize(){w=c.width=c.parentElement.offsetWidth;h=c.height=c.parentElement.offsetHeight;shapes.forEach(s=>{s.x=Math.random()*w;s.y=Math.random()*h})}
+resize();window.addEventListener('resize',resize);
+const glows=[{x:.2,y:.3,r:250,col:'144,6,82',op:.06},{x:.7,y:.6,r:300,col:'37,150,190',op:.05},{x:.5,y:.8,r:200,col:'184,20,122',op:.04}];
+function draw(){x.clearRect(0,0,w,h);for(const g of glows){const grd=x.createRadialGradient(g.x*w,g.y*h,0,g.x*w,g.y*h,g.r);grd.addColorStop(0,`rgba(${g.col},${g.op})`);grd.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=grd;x.fillRect(0,0,w,h)}for(const s of shapes){s.x+=s.vx;s.y+=s.vy;s.rot+=s.vr;if(s.x<-80)s.x=w+80;if(s.x>w+80)s.x=-80;if(s.y<-80)s.y=h+80;if(s.y>h+80)s.y=-80;x.save();x.translate(s.x,s.y);x.rotate(s.rot);x.fillStyle=`rgba(${s.col},${s.op})`;x.strokeStyle=`rgba(${s.col},${s.op+.02})`;x.lineWidth=1;if(s.circle){x.beginPath();x.arc(0,0,s.sz/2,0,Math.PI*2);x.fill();x.stroke()}else{const r=6,hw=s.sz/2,hh=s.sz*.4;x.beginPath();x.moveTo(-hw+r,-hh);x.lineTo(hw-r,-hh);x.quadraticCurveTo(hw,-hh,hw,-hh+r);x.lineTo(hw,hh-r);x.quadraticCurveTo(hw,hh,hw-r,hh);x.lineTo(-hw+r,hh);x.quadraticCurveTo(-hw,hh,-hw,hh-r);x.lineTo(-hw,-hh+r);x.quadraticCurveTo(-hw,-hh,-hw+r,-hh);x.closePath();x.fill();x.stroke()}x.restore()}requestAnimationFrame(draw)}draw()})();
+
+/* ===== OUR PEOPLE GRID ===== */
+(function(){
+const N=8;
+const pin=document.getElementById('heroPin');
+const sticky=document.getElementById('heroSticky');
+const cardsSide=document.getElementById('heroCardsSide');
+const heroText=document.getElementById('heroTextSide');
+const gridTitle=document.getElementById('gridCenterTitle');
+
+const images=[
+  'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=360&h=640&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=360&h=640&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1580894894513-541e068a3e2b?w=360&h=640&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=360&h=640&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=360&h=640&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=360&h=640&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=360&h=640&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=360&h=640&fit=crop&crop=face'
+];
+
+const cardEls=[];
+for(let i=0;i<N;i++){
+  const el=document.createElement('div');
+  el.className='scroll-card';
+  el.innerHTML=`<div class="people-media"><img src="${images[i]}" alt="" loading="eager"><div class="card-overlay"><span>0${i+1}</span></div></div>`;
+  sticky.appendChild(el);
+  cardEls.push(el);
+}
+
+function isMob(){return window.innerWidth<768}
+
+const fanD=[{x:-60,y:28,r:-18},{x:-20,y:-6,r:-6},{x:20,y:-6,r:6},{x:60,y:28,r:18}];
+const mFanD=[{x:-40,y:20,r:-16},{x:-13,y:-4,r:-5},{x:13,y:-4,r:5},{x:40,y:20,r:16}];
+
+function lerp(a,b,t){return a+(b-a)*t}
+function easeOut(t){return 1-Math.pow(1-t,3)}
+
+const gridSlots=[[0,0],[0,1],[0,2],[1,0],[1,2],[2,0],[2,1],[2,2]];
+
+function getGridPositions(vW,vH,mob){
+  let cW,cH;
+  if(mob){cW=Math.min(90,vW*0.22);cH=cW*(16/9)}
+  else{cW=Math.min(130,vW*0.1);cH=Math.min(cW*(16/9),vH*0.23)}
+  const gap=mob?10:16;
+  const totalW=cW*3+gap*2;
+  const totalH=cH*3+gap*2;
+  const oX=(vW-totalW)/2;
+  const padTop=mob?0:vH*0.06;
+  const oY=(vH-totalH)/2+padTop;
+  const positions=gridSlots.map(([r,c])=>({x:oX+c*(cW+gap)+cW/2,y:oY+r*(cH+gap)+cH/2}));
+  const titlePos={x:oX+1*(cW+gap)+cW/2,y:oY+1*(cH+gap)+cH/2};
+  return{positions,titlePos,cW,cH};
+}
+
+function update(){
+  const mob=isMob();
+  const rect=pin.getBoundingClientRect();
+  const pinH=pin.offsetHeight,vH=window.innerHeight,vW=window.innerWidth;
+  const scrolled=-rect.top,range=pinH-vH;
+  if(range<=0)return;
+  const pct=Math.max(0,Math.min(1,scrolled/range));
+  const phase2=Math.max(0,Math.min(1,(pct-.3)/.7));
+  const t=easeOut(phase2);
+  heroText.style.opacity=String(Math.max(0,1-t*1.5));
+  heroText.style.transform=`translateY(${t*-40}px)`;
+  const tOp=Math.max(0,t*2-1);
+  gridTitle.style.opacity=String(tOp);
+  const gp=getGridPositions(vW,vH,mob);
+  const{positions,titlePos,cW}=gp;
+  gridTitle.style.left=titlePos.x+'px';
+  gridTitle.style.top=titlePos.y+'px';
+  gridTitle.style.transform='translate(-50%,-50%)';
+  const sRect=cardsSide.getBoundingClientRect();
+  const sCx=sRect.left+sRect.width/2,sCy=sRect.top+sRect.height/2;
+  const fd=mob?mFanD:fanD;
+  const baseCW=mob?90:155,baseCH=mob?125:215;
+  for(let i=0;i<N;i++){
+    const el=cardEls[i],target=positions[i],scaleEnd=cW/baseCW;
+    if(i<4){
+      const fx=sCx+(fd[i].x*(mob?.9:1.2)),fy=sCy+(fd[i].y*(mob?.9:1.2)),fr=fd[i].r;
+      el.style.width=baseCW+'px';el.style.height=baseCH+'px';
+      el.style.transform=`translate(${lerp(fx,target.x,t)-baseCW/2}px,${lerp(fy,target.y,t)-baseCH/2}px) rotate(${lerp(fr,0,t)}deg) scale(${lerp(1,scaleEnd,t)})`;
+      el.style.opacity='1';
+    }else{
+      const fadeT=Math.max(0,(t-.3)/.7),s=lerp(.5,scaleEnd,fadeT);
+      el.style.width=baseCW+'px';el.style.height=baseCH+'px';
+      el.style.transform=`translate(${target.x-baseCW/2}px,${target.y-baseCH/2}px) scale(${Math.max(.01,s)})`;
+      el.style.opacity=String(Math.max(0,fadeT));
+    }
+  }
+}
+window.addEventListener('scroll',update,{passive:true});
+window.addEventListener('resize',update);
+update();
+})();
+
+/* ===== STORY ===== */
+const storyPin=document.getElementById('storyPin');
+const stSlides=[document.getElementById('ss0'),document.getElementById('ss1'),document.getElementById('ss2')];
+const stCards=[document.getElementById('sc0'),document.getElementById('sc1'),document.getElementById('sc2')];
+const stDots=document.querySelectorAll('.story-dot');
+let prevSI=-1;
+function updateStory(){const rect=storyPin.getBoundingClientRect();const pinH=storyPin.offsetHeight,viewH=window.innerHeight;const scrolled=-rect.top,scrollRange=pinH-viewH;if(scrollRange<=0)return;const pct=Math.max(0,Math.min(1,scrolled/scrollRange));const idx=Math.min(2,Math.floor(pct*3));if(idx===prevSI)return;prevSI=idx;stSlides.forEach((s,i)=>{s.className='story-slide'+(i===idx?' active':i<idx?' exit':'')});stCards.forEach((c,i)=>{c.className='story-card'+(i===idx?' active':i<idx?' exit':'')});stDots.forEach((d,i)=>{d.classList.toggle('active',i===idx)})}
+window.addEventListener('scroll',updateStory);updateStory();
+
+/* ===== BRANDS ===== */
+(function(){
+const bd=[{icon:'Co',name:'Coschool',desc:'Empowering teachers and schools with modern pedagogical tools and data-driven insights.',color:'144,6,82'},{icon:'7M',name:'7 Midway Plaza',desc:'State-of-the-art commercial infrastructure creating vibrant community hubs.',color:'37,150,190'},{icon:'HH',name:'Honey Harvest',desc:'Delivering pure, organic produce from sustainable farms to healthy homes.',color:'144,6,82'},{icon:'Wb',name:'Westberry',desc:'Nurturing holistic growth and academic excellence for primary learners.',color:'37,150,190'},{icon:'PC',name:'PC Foundation',desc:'Driving social change through strategic philanthropy and community development.',color:'144,6,82'}];
+const track=document.getElementById('brandsTrack');
+for(let s=0;s<3;s++){bd.forEach(b=>{const card=document.createElement('div');card.className='brand-card';card.innerHTML=`<div class="brand-img" style="background:linear-gradient(135deg,rgba(${b.color},.08),rgba(${b.color},.03))"><div class="brand-img-icon" style="color:rgba(${b.color},1);background:rgba(${b.color},.12)">${b.icon}</div></div><div class="brand-body"><h3>${b.name}</h3><p>${b.desc}</p><a href="#" class="brand-link">Explore →</a></div>`;track.appendChild(card)})}
+let pos=0,speed=.4,paused=false,dragging=false,startX,dragStart;const totalW=(320+20)*5;
+function animate(){if(!dragging){if(!paused)pos+=speed;if(pos>=totalW)pos-=totalW;if(pos<0)pos+=totalW}track.style.transform=`translateX(-${pos}px)`;requestAnimationFrame(animate)}animate();
+track.addEventListener('mouseenter',()=>paused=true);track.addEventListener('mouseleave',()=>{paused=false;dragging=false});
+track.addEventListener('mousedown',e=>{dragging=true;startX=e.clientX;dragStart=pos;track.style.cursor='grabbing'});
+window.addEventListener('mouseup',()=>{dragging=false;track.style.cursor='grab'});
+window.addEventListener('mousemove',e=>{if(!dragging)return;pos=dragStart-(e.clientX-startX);if(pos>=totalW)pos-=totalW;if(pos<0)pos+=totalW});
+let tX;track.addEventListener('touchstart',e=>{dragging=true;paused=true;tX=e.touches[0].clientX;dragStart=pos},{passive:true});
+track.addEventListener('touchmove',e=>{if(!dragging)return;pos=dragStart-(e.touches[0].clientX-tX);if(pos>=totalW)pos-=totalW;if(pos<0)pos+=totalW},{passive:true});
+track.addEventListener('touchend',()=>{dragging=false;paused=false})})();
+
+/* ===== TIMELINE ===== */
+(function(){const section=document.querySelector('.timeline-section');const fill=document.getElementById('tlFill');window.addEventListener('scroll',()=>{const rect=section.getBoundingClientRect();const sH=section.offsetHeight,vH=window.innerHeight;const scrolled=-rect.top;const range=sH-vH;if(range<=0)return;const pct=Math.max(0,Math.min(100,(scrolled/range)*100));fill.style.height=pct+'%'})})();
+
+/* ===== LEADERS ===== */
+(function(){
+const leaders=[
+  {initials:'NP',name:'Naga Prasad T.',role:'Chairman',img:'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800&q=80&auto=format&fit=crop&crop=face',story:'With over three decades of visionary leadership, Naga Prasad has been the driving force behind People Combine\'s growth from a single school to a diversified education conglomerate. His passion for building institutions that outlast generations defines the company\'s DNA.'},
+  {initials:'ST',name:'Satish T.',role:'Director',img:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80&auto=format&fit=crop&crop=face',story:'Satish brings strategic acumen and operational excellence to every venture. His deep understanding of India\'s education landscape has helped shape policies and partnerships that have impacted millions of learners across the country.'},
+  {initials:'VT',name:'Vikas T.',role:'Co-founder',img:'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&q=80&auto=format&fit=crop&crop=face',story:'As co-founder, Vikas has been instrumental in building the academic and cultural foundation of People Combine\'s institutions. His commitment to holistic education and community development continues to inspire the next generation of leaders.'},
+  {initials:'AR',name:'Anjali R.',role:'Head of Education',img:'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&q=80&auto=format&fit=crop&crop=face',story:'Anjali leads the pedagogical vision across all People Combine schools. With expertise in curriculum design and teacher development, she ensures every classroom delivers world-class learning experiences tailored to Indian students.'},
+  {initials:'RK',name:'Rajesh K.',role:'Chief Tech Officer',img:'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=800&q=80&auto=format&fit=crop&crop=face',story:'Rajesh spearheads the technology transformation at People Combine, driving innovations like SchoolAi by Coschool. His mission is to make cutting-edge AI tools accessible to every teacher and student across the country.'},
+  {initials:'SM',name:'Sonia M.',role:'Chief Hospitality',img:'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=800&q=80&auto=format&fit=crop&crop=face',story:'Sonia oversees People Combine\'s hospitality and infrastructure ventures. Her eye for quality and detail ensures every space\u2014from schools to commercial hubs\u2014delivers an experience that exceeds expectations.'}
+];
+
+const grid=document.getElementById('leadersGrid');
+const linkedinSvg='<svg viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>';
+
+const DESK_COLS=3;
+let openIdx=-1;
+/* Reusable story panel element for desktop (inserted into grid flow) */
+let storyPanel=null;
+
+function createStoryPanel(){
+  const el=document.createElement('div');
+  el.className='leader-row-story';
+  el.innerHTML='<div class="leader-row-story-inner"><img class="lrs-pfp" src="" alt=""><div class="lrs-body"><h4></h4><span class="lrs-role"></span><p></p></div></div>';
+  return el;
+}
+
+/* Build grid items */
+leaders.forEach((l,i)=>{
+  const item=document.createElement('div');
+  item.className='leader-item';
+  item.dataset.idx=String(i);
+  item.innerHTML=`
+    <div class="leader-card" data-idx="${i}">
+      <div class="leader-card-overlay"></div>
+      <div class="leader-card-img"><img src="${l.img}" alt="${l.name}" loading="lazy"></div>
+      <a href="#" class="leader-linkedin" onclick="event.stopPropagation()">${linkedinSvg}</a>
+      <div class="leader-card-content">
+        <div class="leader-bar"></div>
+        <h3>${l.name}</h3>
+        <div class="role">${l.role}</div>
+        <div class="leader-read-cta">Read Story \u2193</div>
+      </div>
+    </div>
+    <div class="leader-story">
+      <div class="leader-story-inner">
+        <img class="ls-pfp" src="${l.img}" alt="${l.name}">
+        <div class="ls-text">
+          <h4>${l.name}</h4>
+          <span class="ls-role">${l.role}</span>
+          <p>${l.story}</p>
+        </div>
+      </div>
+    </div>`;
+  grid.appendChild(item);
+});
+
+function isDesk(){return window.innerWidth>=768}
+
+function clearSelection(){
+  document.querySelectorAll('.leader-item.selected').forEach(el=>el.classList.remove('selected'));
+  document.querySelectorAll('.leader-item.open').forEach(el=>el.classList.remove('open'));
+}
+
+function closeDesktopPanel(){
+  if(storyPanel&&storyPanel.parentNode){
+    storyPanel.classList.remove('open');
+    /* Remove from DOM after transition */
+    setTimeout(()=>{if(storyPanel.parentNode)storyPanel.parentNode.removeChild(storyPanel)},500);
+  }
+  clearSelection();
+  openIdx=-1;
+}
+
+function openDesktopPanel(idx){
+  const l=leaders[idx];
+  const row=Math.floor(idx/DESK_COLS);
+  const lastInRow=Math.min((row+1)*DESK_COLS, leaders.length)-1;
+
+  /* Get or create the panel */
+  if(!storyPanel) storyPanel=createStoryPanel();
+
+  /* Remove open class first (for re-animation) */
+  storyPanel.classList.remove('open');
+
+  /* Fill content */
+  storyPanel.querySelector('.lrs-pfp').src=l.img;
+  storyPanel.querySelector('.lrs-pfp').alt=l.name;
+  storyPanel.querySelector('h4').textContent=l.name;
+  storyPanel.querySelector('.lrs-role').textContent=l.role;
+  storyPanel.querySelector('p').textContent=l.story;
+
+  /* Find the DOM node of the last leader-item in this row */
+  const items=grid.querySelectorAll('.leader-item');
+  const afterNode=items[lastInRow];
+
+  /* Insert panel right after that item */
+  if(afterNode.nextSibling!==storyPanel){
+    /* Remove from old position if present */
+    if(storyPanel.parentNode) storyPanel.parentNode.removeChild(storyPanel);
+    afterNode.after(storyPanel);
+  }
+
+  /* Trigger open with rAF for transition */
+  void storyPanel.offsetWidth;
+  storyPanel.classList.add('open');
+
+  /* Highlight card */
+  clearSelection();
+  items[idx].classList.add('selected');
+  openIdx=idx;
+
+  /* Scroll into view */
+  setTimeout(()=>storyPanel.scrollIntoView({behavior:'smooth',block:'nearest'}),80);
+}
+
+/* Click handler */
+grid.addEventListener('click',function(e){
+  const card=e.target.closest('.leader-card');
+  if(!card)return;
+  const idx=parseInt(card.dataset.idx);
+  const item=card.closest('.leader-item');
+
+  if(isDesk()){
+    /* DESKTOP: row-level story panel */
+    if(openIdx===idx){
+      closeDesktopPanel();
+      return;
+    }
+    openDesktopPanel(idx);
+  }else{
+    /* MOBILE: inline expand under same card */
+    if(openIdx===idx){
+      item.classList.remove('open');
+      item.classList.remove('selected');
+      openIdx=-1;
+      return;
+    }
+    clearSelection();
+    item.classList.add('open');
+    item.classList.add('selected');
+    openIdx=idx;
+    setTimeout(()=>item.scrollIntoView({behavior:'smooth',block:'nearest'}),80);
+  }
+});
+
+/* Resize: close if mode switches */
+let wasDeskLast=isDesk();
+window.addEventListener('resize',()=>{
+  const nowDesk=isDesk();
+  if(nowDesk!==wasDeskLast){closeDesktopPanel();wasDeskLast=nowDesk}
+});
+})();
+
+/* ===== MORPH: Hero → Impact ===== */
+(function(){
+const imp=document.getElementById('impactSection');if(!imp)return;
+let done=false;
+const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting&&!done){done=true;imp.style.transition='opacity .5s cubic-bezier(.22,1,.36,1),transform .5s cubic-bezier(.22,1,.36,1)';imp.style.opacity='0';imp.style.transform='translateY(30px) scale(0.98)';requestAnimationFrame(()=>{requestAnimationFrame(()=>{imp.style.opacity='1';imp.style.transform='translateY(0) scale(1)'})});setTimeout(()=>{done=false},1200)}})},{threshold:0.05});
+io.observe(imp);
+})();
+</script>
+</body>
+</html>
